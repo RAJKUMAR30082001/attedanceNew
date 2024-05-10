@@ -3,7 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FacultyService } from 'src/app/faculty.service';
 import { facultyLogin } from 'src/app/student-data';
-
+interface DepartmentObject {
+  [key: string]: { [key: string]: string };
+}
 
 @Component({
   selector: 'app-faculty-register',
@@ -14,6 +16,10 @@ export class FacultyRegisterComponent implements OnInit {
   private facultyDetails!:facultyLogin
   facultyForm!:FormGroup
   errorMessage!:HTMLDivElement
+  subjectCodeArray:string[]=[]
+  subjectArray:string[]=[]
+  teachingDepartments:any[]=[]
+  flag:boolean=false
 
   constructor(private facultyService:FacultyService,private fb:FormBuilder,private render:Renderer2,private route:Router){}
 
@@ -33,32 +39,73 @@ export class FacultyRegisterComponent implements OnInit {
       department:["",[Validators.required,Validators.pattern(/^[a-zA-Z\s]+$/)]]
     })
   }
-  onSubmit(){
+  async onSubmit(){
+    let find!:boolean
+    this.errorMessage.innerHTML=""
     console.log("onsubmit")
+    find = await this.addAnotherDepartment()
+    console.log(find)
+    if(find){
     if (this.facultyForm.valid){
       this.facultyDetails={
         name:this.facultyForm.value.name?this.facultyForm.value.name.toLowerCase():"",
         employeeId:this.facultyForm.value.employeeId,
         email:this.facultyForm.value.email?this.facultyForm.value.email.toLowerCase():'',
         password:this.facultyForm.value.password?this.facultyService.hashedPassword(this.facultyForm.value.password):'',
-        department:this.facultyForm.value.department?this.facultyForm.value.department.toLowerCase():"",
-        subject:this.facultyForm.value.subject?this.facultyForm.value.subject.toLowerCase():"",
-        subjectCode:this.facultyForm.value.subjectCode?this.facultyForm.value.subjectCode.toLowerCase():"",
+        department:this.teachingDepartments,
         permitted:false,
-        leavePermission:[],
-        seen:[],
-        unSeen:[]
+        type:"faculty"
+       
       }
-      
+     
       console.log(this.facultyDetails)
-      this.facultyService.putData(this.facultyDetails,this.errorMessage)
+      this.facultyService.createDocument(this.facultyDetails,this.errorMessage)
       console.log("success")
-      // this.facultyForm.reset()
+      this.facultyForm.reset()
       // this.route.navigate(['/home'])
 
       
-    }
+    }}
   }
+  async addAnotherDepartment():Promise<boolean>{
+    this.flag=true
+    let deptObj:{[key:string]:{}}={}
+    if(!this.isDepartmentExist(this.facultyForm.value.department)){
+    deptObj[this.facultyForm.value.department]={
+      [this.facultyForm.value.subject]:this.facultyForm.value.subjectCode
+    }
+    let flags=await this.facultyService.toCheckAlreadyExist(deptObj,this.errorMessage)
+    console.log(flags)
+    if(flags){
+    this.teachingDepartments.push(deptObj)
+    return true
+  }else{
+    this.flag=false
+    return false
+  }
+  }
+  else{
+    this.errorMessage.innerHTML="Department already entered"
+    return false
+  }
+}
  
-
+onDepartmentChange(event:Event){
+  console.log(this.teachingDepartments)
+  const selectedDepartment = (event.target as HTMLSelectElement).value;
+  this.facultyService.getSubjectCodeName(selectedDepartment).then(res=>{
+    this.subjectArray=res[0]
+    this.subjectCodeArray=res[1]
+  })
+  
+  
+}
+clearValue(){
+  (document.getElementById("department") as HTMLSelectElement).value="";
+  (document.getElementById("subject") as HTMLSelectElement).value="";
+  (document.getElementById("subjectCode") as HTMLSelectElement).value=""
+}
+isDepartmentExist(department: string): boolean {
+  return this.teachingDepartments.some((deptObj: DepartmentObject) => deptObj.hasOwnProperty(department));
+}
 }

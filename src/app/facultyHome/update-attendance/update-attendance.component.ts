@@ -29,7 +29,7 @@ export class UpdateAttendanceComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     this.details=this.check.getData()
-    this.subjectCode=this.details.subjectCode
+    // this.subjectCode=this.details.subjectCode
     this.getDetails()
    
   }

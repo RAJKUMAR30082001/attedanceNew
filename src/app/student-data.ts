@@ -7,12 +7,6 @@ export interface StudentData {
     email:string
     password:string
     confirmPassword?:string
-    leaveLetter:any[]
-    notification:string[]
-    attendanceRecord:any[]
-    numberOfClasses:{}
-    seen:[]
-    unSeen:[]
 }
 export interface CouchDBViewResponse {
     total_rows: number;
@@ -31,13 +25,11 @@ export interface facultyLogin{
     employeeId:number
     email:string
     password:string
-    subject:string
-    subjectCode:string
-    department:string
+    
+    department:any[]
     permitted:boolean
-    leavePermission:[]
-    seen:[]
-    unSeen:[]
+    type:string
+    
 }
 
 export interface leaveLetterForm{

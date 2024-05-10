@@ -39,7 +39,8 @@ export class StudentFaceRegisterComponent implements OnInit, OnDestroy {
             console.log("results",results);
             if(results.length>0){
               
-              this.Couch.faceUpdate(results,this.RegisterNumber,this.currentYear)
+              this.Couch.faceUpdate(results,this.RegisterNumber)
+              console.log(this.flag)
               this.flag='Scanned'
             }
          

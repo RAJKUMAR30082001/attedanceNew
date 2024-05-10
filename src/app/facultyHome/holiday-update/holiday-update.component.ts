@@ -8,13 +8,21 @@ import { FacultyService } from 'src/app/faculty.service';
   styleUrls: ['./holiday-update.component.scss']
 })
 export class HolidayUpdateComponent implements OnInit, OnDestroy{
+  public notification:string[]=[]
   constructor(private check:CheckValidityService,private faculty:FacultyService){}
   ngOnInit(): void {
-    let notification=this.check.getData().unSeen
+    this.notification=this.check.getData().unSeen
   }
   ngOnDestroy(): void {
     this.faculty.getFullDocument().subscribe(res=>{
-      let data
+      let data=res['mca']
+      let key=Object.keys(data)
+      key.forEach((item:any)=>{
+        data[item].seen=data[item].unSeen.map((i:any)=>{
+            return i
+        })
+      })
+      this.faculty.updateDocument(res)
     })
   }
 }

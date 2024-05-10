@@ -8,15 +8,14 @@
  body{
     margin: -56px 0;
     padding: 0;
-    background-image: url('../../assets/tce.jpg'); /* Replace 'your-image-url.jpg' with the path to your image */
+    background-image: url('../../assets/tce.jpg');
     background-size: cover;
     background-position: center;
-   
   }
   .errorMessage{
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: red;
+    font-weight: 500;
+    display: block;
   }
 </style>
 </head>
@@ -32,36 +31,30 @@
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
                     <input type="text" class="form-control" id="name" placeholder="Enter your name" formControlName="name" required>
-                    <div *ngIf="facultyForm.get('name')!.hasError('required') && facultyForm.get('name')!.touched" class="error-message">
+                    <div *ngIf="facultyForm.get('name')!.hasError('required') && facultyForm.get('name')!.touched" class="errorMessage">
                         Name is required</div>
-                    <div *ngIf="facultyForm.get('name')!.hasError('pattern') && facultyForm.get('name')!.touched"
-                        class="error-message">
+                    <div *ngIf="facultyForm.get('name')!.hasError('pattern') && facultyForm.get('name')!.touched" class="errorMessage">
                         Name should contain only alphabets</div>
                 </div>
                 <div class="mb-3">
-                    <label for="employeeId" class="form-label">Subject Code</label>
-                    <input type="text" class="form-control" id="employeeId" placeholder="Enter the employeeId"
+                    <label for="employeeId" class="form-label">Employee ID</label>
+                    <input type="text" class="form-control" id="employeeId" placeholder="Enter the employee ID"
                         formControlName="employeeId" required>
-                    <div *ngIf="facultyForm.get('employeeId')!.hasError('required') && facultyForm.get('employeeId')!.touched"
-                        class="error-message">
-                        Subject code is required</div>
-                        <div *ngIf="facultyForm.get('employeeId')!.hasError('pattern') && facultyForm.get('employeeId')!.touched"
-                        class="error-message">
-                        Enter only Numbers</div>
-                        <div *ngIf="facultyForm.get('employeeId')!.hasError('maxlength') && facultyForm.get('employeeId')!.touched"
-                        class="error-message">
-                        ID must be four number</div>
+                    <div *ngIf="facultyForm.get('employeeId')!.hasError('required') && facultyForm.get('employeeId')!.touched" class="errorMessage">
+                        Employee ID is required</div>
+                    <div *ngIf="facultyForm.get('employeeId')!.hasError('pattern') && facultyForm.get('employeeId')!.touched" class="errorMessage">
+                        Enter only numbers</div>
+                    <div *ngIf="facultyForm.get('employeeId')!.hasError('maxlength') && facultyForm.get('employeeId')!.touched" class="errorMessage">
+                        Employee ID must be four digits</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" id="email" placeholder="Enter your email" formControlName="email"
                         required>
-                    <div *ngIf="facultyForm.get('email')!.hasError('required') && facultyForm.get('email')!.touched"
-                        class="error-message">
+                    <div *ngIf="facultyForm.get('email')!.hasError('required') && facultyForm.get('email')!.touched" class="errorMessage">
                         Email is required</div>
-                    <div *ngIf="facultyForm.get('email')!.hasError('email') && facultyForm.get('email')!.touched"
-                        class="error-message">
+                    <div *ngIf="facultyForm.get('email')!.hasError('email') && facultyForm.get('email')!.touched" class="errorMessage">
                         Enter a valid Email</div>
                 </div>
 
@@ -69,53 +62,57 @@
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" placeholder="Enter the password"
                         formControlName="password" required>
-                    <div class="error-message" *ngIf="facultyForm.get('password')!.hasError('required') && facultyForm.get('password')!.touched">
-                        Password is required.
-                    </div>
-                    <div class="error-message" *ngIf="facultyForm.get('password')!.hasError('minlength') && facultyForm.get('password')!.touched">
-                        Password must be at least 8 characters long.
-                    </div>
-                    <div class="error-message" *ngIf="facultyForm.get('password')!.hasError('pattern') && facultyForm.get('password')!.touched">
-                        Password must contain at least one lowercase, uppercase, and symbol.
-                    </div>
+                    <div *ngIf="facultyForm.get('password')!.hasError('required') && facultyForm.get('password')!.touched" class="errorMessage">
+                        Password is required</div>
+                    <div *ngIf="facultyForm.get('password')!.hasError('minlength') && facultyForm.get('password')!.touched" class="errorMessage">
+                        Password must be at least 8 characters long</div>
+                    <div *ngIf="facultyForm.get('password')!.hasError('pattern') && facultyForm.get('password')!.touched" class="errorMessage">
+                        Password must contain at least one lowercase, uppercase, and symbol</div>
                 </div>
 
+               
+
+                <div class="mb-3">
+                    <label for="department" class="form-label">Department</label>
+                    <select class="form-control" id="department" formControlName="department"  (change)="onDepartmentChange($event)" required>
+                        <option value="">Select Department</option>
+                        <option value="mca">MCA</option>
+                        <option value="eee">EEE</option>
+                        <option value="ece">ECE</option>
+                    </select>
+                    <div *ngIf="facultyForm.get('department')!.hasError('required') && facultyForm.get('department')!.touched" class="errorMessage">
+                        Department is required</div>
+                </div>
                 <div class="mb-3">
                     <label for="subject" class="form-label">Subject</label>
-                    <input type="text" class="form-control" id="subject" placeholder="Enter the subject"
-                        formControlName="subject" required>
-                    <div *ngIf="facultyForm.get('subject')!.hasError('required') && facultyForm.get('subject')!.touched"
-                        class="error-message">
+                    <select class="form-control" id="subject" formControlName="subject" required>
+                        <option value="" disabled selected>Select Subject Name</option>
+                        <option *ngFor="let sub of  subjectArray" [value]="sub">{{ sub }}</option>
+                    </select>
+                    
+                    <div *ngIf="facultyForm.get('subject')!.hasError('required') && facultyForm.get('subject')!.touched" class="errorMessage">
                         Subject is required</div>
-                    <div *ngIf="facultyForm.get('subject')!.hasError('pattern') && facultyForm.get('subject')!.touched"
-                        class="error-message">
-                        Subject should contain only alphabets</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="subjectCode" class="form-label">Subject Code</label>
-                    <input type="text" class="form-control" id="subjectCode" placeholder="Enter the subject code"
-                        formControlName="subjectCode" required>
-                    <div *ngIf="facultyForm.get('subjectCode')!.hasError('required') && facultyForm.get('subjectCode')!.touched"
-                        class="error-message">
+                    <select class="form-control" id="subjectCode" formControlName="subjectCode" required>
+                        <option value="" disabled selected>Select Subject Code</option>
+                        <option *ngFor="let code of subjectCodeArray" [value]="code">{{ code }}</option>
+                    </select>
+                    <div *ngIf="facultyForm.get('subjectCode')!.hasError('required') && facultyForm.get('subjectCode')!.touched" class="errorMessage">
                         Subject code is required</div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="department" class="form-label">Department</label>
-                    <input type="text" class="form-control" id="department" placeholder="Enter your department"
-                        formControlName="department" required>
-                    <div *ngIf="facultyForm.get('department')!.hasError('required') && facultyForm.get('department')!.touched"
-                        class="error-message">
-                        Department is required</div>
-                    <div *ngIf="facultyForm.get('department')!.hasError('pattern') && facultyForm.get('department')!.touched"
-                        class="error-message">
-                        Department should contain only alphabets</div>
-                </div>
                 <div class="text-center">
-                <button type="submit" class="btn-custom" [disabled]="facultyForm.invalid">Submit</button>
-              </div> 
-              </form>
+                    <button type="submit" class="btn-custom">Submit</button>
+                </div> 
+
+                <!-- Button to add another department -->
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-secondary" (click)="addAnotherDepartment()">Add Another Department</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

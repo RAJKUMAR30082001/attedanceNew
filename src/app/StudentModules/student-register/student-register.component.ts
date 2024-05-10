@@ -5,6 +5,8 @@ import { StudentCouchService } from '../../student-couch.service';
 import { Router } from '@angular/router';
 import { FacultyService } from 'src/app/faculty.service';
 import { AdminService } from 'src/app/admin.service';
+import { v4 as uuidv4 } from 'uuid';
+
 
 @Component({
   selector: 'app-student-register',
@@ -27,18 +29,13 @@ export class StudentRegisterComponent implements OnInit {
 
   ngOnInit() {
     this.errorDivElement=this.red.selectRootElement(".errorMessage")
-    this.currentYear= new Date().getFullYear();
-    this.adminService.getUrl().subscribe(data=>{
-      this.adminData=data.subjectCode
-    })
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]],
       middleName: ['', [Validators.pattern(/^[a-zA-Z\s]+$/)]],
       lastName: ['', [Validators.pattern(/^[a-zA-Z\s]+$/)]],
       email: ['', [Validators.required, Validators.email]],
-      department: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]],
-      registerNumber: ['', [Validators.required, Validators.minLength(10),Validators.pattern(/^917722[Yy]\d+$/
-      )]],
+      department: ['', [Validators.required]],
+      registerNumber: ['', [Validators.required]],//,Validators.pattern(/^917722[Yy]\d+$/), Validators.minLength(10)
       password: [
         '',
         [Validators.required, Validators.minLength(8),Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).+$/) ]
@@ -66,33 +63,21 @@ export class StudentRegisterComponent implements OnInit {
           department: this.registerForm.value.department.toLowerCase(),
           registerNumber: this.registerForm.value.registerNumber,
           email: this.registerForm.value.email,
-          password: this.service.hashedPassword(this.registerForm.value.password),
-          leaveLetter:[],
-          notification:[],
-          numberOfClasses:this.getNumberOfClasses(),
-          attendanceRecord:this.AttendanceRecord(),
-          seen:[],
-          unSeen:[]
+          password: this.service.hashedPassword(this.registerForm.value.password)
         };
         console.log(this.studentDetails)
-        this.service.putDocuments(this.studentDetails,this.currentYear,this.errorDivElement);
-        // this.registerForm.reset();
-       
+        this.service.checkExist(this.studentDetails,this.errorDivElement).then((exist:Boolean)=>{
+          if(exist){
+            this.service.createDocument(this.studentDetails);
+          }
+        })
+
+        this.registerForm.reset();
+
       } else {
         this.errorDivElement.innerHTML="Enter correct password"
       }
     }
   }
-  getNumberOfClasses():any{
-    console.log(this.adminData)
-    return Object.fromEntries(
-      this.adminData.map(e => [e, 0])
-    );
-    
-  }
-  AttendanceRecord():any{
-    return this.adminData.map(ele=>{
-      return {[ele]:0}
-    })
-  }
+ 
 }

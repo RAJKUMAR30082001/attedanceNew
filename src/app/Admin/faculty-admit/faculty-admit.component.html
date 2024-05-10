@@ -30,22 +30,22 @@
     <tr>
       <th>Name</th>
       <th>EmployeeId</th>
-      <th>Department</th>
+      <!-- <th>Department</th>
       <th>Subject Code</th>
-      <th>Subject</th>
+      <th>Subject</th> -->
       <th>Action</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let faculty of facultyDataToPermit">
-      <td>{{ faculty.name }}</td>
-      <td>{{faculty.employeeId}}</td>
-      <td>{{ faculty.department }}</td>
+      <td>{{ faculty.data.name }}</td>
+      <td>{{faculty.data.employeeId}}</td>
+      <!-- <td>{{ faculty.data.department[0].mca }}</td>
       <td>{{ faculty.subjectCode }}</td>
-      <td>{{ faculty.subject }}</td>
+      <td>{{ faculty.subject }}</td> -->
       <td>
-        <button (click)="allowFaculty(faculty.email, faculty.department, faculty)" class="btn btn-success btn-allow">Allow</button>
-        <button (click)="denyFaculty(faculty.email, faculty.department, faculty)" class="btn btn-danger btn-deny">Deny</button>
+        <button (click)="allowFaculty(faculty)" class="btn btn-success btn-allow">Allow</button>
+        <button (click)="denyFaculty(faculty)" class="btn btn-danger btn-deny">Deny</button>
       </td>
     </tr>
   </tbody>

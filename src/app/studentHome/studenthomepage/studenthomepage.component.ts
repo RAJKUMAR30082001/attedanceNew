@@ -12,7 +12,7 @@ export class StudenthomepageComponent implements OnInit{
   userDetails!:any
   keys!:string[]
   notificationFlag:boolean=false
-  leaveLetterFlag:boolean=true
+  leaveLetterFlag:boolean=false
   attendanceFlag:boolean=false
   redMark:boolean=false
   holiday:boolean=false
@@ -23,17 +23,17 @@ constructor(private service:CheckValidityService){}
       if(this.userAuth===true){
         this.userDetails=this.service.getData()
         console.log(this.userDetails)
-        let notification$=this.userDetails.attendanceRecord
-        console.log(notification$)
-        notification$.forEach((element: any) => {
-          let key=Object.keys(element)[0]
+        // let notification$=this.userDetails.attendanceRecord
+        // console.log(notification$)
+        // notification$.forEach((element: any) => {
+        //   let key=Object.keys(element)[0]
          
-          if(element[key]<70){
-              this.redMark=true
+        //   if(element[key]<70){
+        //       this.redMark=true
               
-          }
+        //   }
           
-        });
+        // });
       }
     }
     Logout(){

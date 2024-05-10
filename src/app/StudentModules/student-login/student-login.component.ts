@@ -40,25 +40,25 @@ export class StudentLoginComponent implements OnInit,OnDestroy {
       registerNumber:this.loginForm.value.registerNumber,
       password:this.loginForm.value.password
     }
-    if(studentDetails.registerNumber.length<6){
+    if(studentDetails.registerNumber.length===5){
     this.isLog=await(this.admin.checkAdmin(studentDetails.password,studentDetails.registerNumber,this.flag))
     if(this.isLog){
       this.admin.setValue(this.isLog)
-      this.video.srcObject=null
       this.route.navigate(['/adminHome']);
     }}
     else{
     console.log(this.flag)
     if(this.flag.length>0){
       console.log("coming")
-      let finalResult=await this.faceApi.faceMatchDescriptor(this.loginForm.value.registerNumber,this.flag)
-      console.log(finalResult,this.loginForm.value.registerNumber)
-      if(finalResult.split(' ')[0]===this.loginForm.value.registerNumber){
-      this.service.login(studentDetails,this.errorMessage,this.video)
+      let finalResult:any=await this.faceApi.faceMatchDescriptor(this.loginForm.value.registerNumber,this.flag,this.errorMessage)
+      console.log(finalResult.result,this.loginForm.value.registerNumber,finalResult.data)
+      if(finalResult.result.split(' ')[0]===this.loginForm.value.registerNumber){
+      this.service.login(studentDetails,this.errorMessage,this.video,finalResult.data)
+
     }
     else{
       this.styleFlag=false
-      this.errorMessage.innerHTML="Face or register number did not matched"
+      this.errorMessage.innerHTML="Face did not matched"
     }
   }
   else{

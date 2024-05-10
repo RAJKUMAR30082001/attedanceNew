@@ -13,7 +13,7 @@ import { FaceapiService } from './faceapi.service';
 export class AdminService implements CanActivate{
   private bool!:boolean
   constructor(private http:HttpClient,private stdService:StudentCouchService,private navigater:Router,private check:CheckValidityService,private face:FaceapiService) { }
-  private baseUrl=`${this.stdService.apiUrl}/Admin`
+  private baseUrl=this.stdService.apiUrl
   private Auth=this.stdService.getHeader()
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean  {
  
@@ -30,26 +30,31 @@ export class AdminService implements CanActivate{
     return false
    }
   }
-  checkAdmin(userName: string, Password: string,descriptor:any): Promise<boolean> {
+  checkAdmin(userName: string, Password: string, descriptor: any): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      this.getUrl().subscribe(
-       async (data) => {
-        console.log(data.LabeledDescritor,data.hours)
-          let result=await this.face.adminFaceMatch(data.LabeledDescritor,descriptor)
-          if(result.split(" ")[0]==='admin'){
-          if (data['username'] === userName && data['password'] === Password) {
-            this.check.SetData(data,true)
-            resolve(true);
-          } else {
-            resolve(false);
-          }}else{
-            resolve(false);
-          }
+      this.http.get(`${this.baseUrl}/_design/view/_view/adminFace`, { headers: this.stdService.getHeader() }).subscribe(
+        (res: any) => {
+          const data = res.rows[0].value;
+  
+          
+          this.face.adminFaceMatch(data.faceDescriptor, descriptor).then((result: string) => {
+            if (result.split(" ")[0] === 'admin' && data['username'] === userName && data['password'] === Password) {
+              
+              this.check.SetData(data, true);
+              resolve(true);
+            } else {
+              
+              resolve(false);
+            }
+          }).catch((error: any) => {
+            console.error('Error in face match:', error);
+            resolve(false); 
+          });
         },
         (error) => {
-          // Handle error, for example, by rejecting the promise
+          
           console.error('Error in HTTP request:', error);
-          reject(false)
+          reject(false); 
         }
       );
     });
@@ -57,8 +62,15 @@ export class AdminService implements CanActivate{
   setValue(isLog:boolean){
     this.bool=isLog
   }
-  getUrl():Observable<any>{
-    return this.http.get<any>(this.baseUrl, { headers: this.Auth })
+  getViewUrl(type:string,key:string):Observable<any>{
+    let Url=`${this.baseUrl}/_design/view/_view/${type}?key="${key}"`
+    return this.http.get<any>(Url, { headers: this.Auth })
+  }
+  getUrl(){
+    return    this.http.get<any>(this.baseUrl, { headers: this.Auth })
+  }
+  createDoc(doc:any){
+    return this.http.post(this.baseUrl,doc,{headers:this.Auth})
   }
   
   updateAdmin(doc:any){

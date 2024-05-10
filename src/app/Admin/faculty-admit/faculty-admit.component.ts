@@ -9,43 +9,37 @@ import { facultyLogin } from 'src/app/student-data';
 })
 export class FacultyAdmitComponent implements OnInit{
   facultyDataToPermit!:any
-  
+  department:any[]=[]
   constructor(private  Service : FacultyService) {}
   ngOnInit(): void {
     
-    this.Service.getFacultyData().subscribe((data:facultyLogin) => {
-      console.log(data);
-    this.facultyDataToPermit = Object.values(data)
-  .filter(value => !value.permitted);
+    this.Service.getFacultyData().subscribe((data:any) => {
+      let row=data.rows
+      this.facultyDataToPermit=row.map((item:any)=>{
+          // item.value.data.department.map(
+          //   (i:any)=>{
+          //     if(item.value.data.department.length>1)
+          //     this.department.push(Object.keys(i)[0])
+          //   }
+          // )
+        return item.value
+      })
+      console.log(this.facultyDataToPermit)
     });
 
    
     
     }
-    allowFaculty(email:string,department:string,faculty:any){
-      this.Service.getFullDocument().subscribe(data=>{
-        if(data[department]){
-          let FullData=data[department];
-          if(FullData[email]){
-            let finalData=FullData[email]
-            console.log(finalData)
-            finalData.permitted=true;
-            this.Service.updateDocument(data)
-          }
-        }
-      })
+    allowFaculty(faculty:any){
+      faculty.data.permitted=true
+      this.Service.updateDocument(faculty)
+        console.log(faculty)
       this.removeFromPending(faculty)
     }
-    denyFaculty(email:string,department:string,faculty:any){
-      this.Service.getFullDocument().subscribe(data=>{
-        if(data[department]){
-          let FullData=data[department];
-          if(FullData[email]){
-            delete FullData[email]
-            this.Service.updateDocument(data)
-          }
-        }
-      })
+    denyFaculty(faculty:any){
+      faculty.data.permitted="no"
+      this.Service.updateDocument(faculty)
+      console.log(faculty)
       this.removeFromPending(faculty)
     }
     removeFromPending(faculty:any){

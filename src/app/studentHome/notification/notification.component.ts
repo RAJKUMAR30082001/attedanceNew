@@ -20,67 +20,68 @@ export class NotificationComponent implements OnInit {
   ngOnInit() {
     this.container=document.getElementById("notification") as HTMLDivElement
     this.userDetails=this.check.getData()
-    this.leavePermit()
+    // this.leavePermit()
     this.adminService.getUrl().subscribe(data=>{
       this.hours=data.hours
       this.notify(this.userDetails)
     })
+    // this.absenceNotification()
    
     
   }
   notify(details: StudentData) {
-    details.attendanceRecord.forEach((element: any) => {
-      const key = Object.keys(element)[0] as keyof typeof details.numberOfClasses;
-      let classesAttended = details.numberOfClasses[key];
+  //   details.attendanceRecord.forEach((element: any) => {
+  //     const key = Object.keys(element)[0] as keyof typeof details.numberOfClasses;
+  //     let classesAttended = details.numberOfClasses[key];
       
-      if (element[key] < 70 && this.hours[key] !== 0) {
-        for (this.j = 1; (classesAttended / (this.hours[key]+ 1)) * 100 < 75; this.j++) {
-          classesAttended++;
+  //     if (element[key] < 70 && this.hours[key] !== 0) {
+  //       for (this.j = 1; (classesAttended / (this.hours[key]+ 1)) * 100 < 75; this.j++) {
+  //         classesAttended++;
           
-        }
-        this.addString(`Required period to attend for ${key}: ${this.j-1}`)
+  //       }
+  //       this.addString(`Required period to attend for ${key}: ${this.j-1}`)
         
-      }
-    });
-  }
+  //     }
+  //   });
+  // }
 
-  leavePermit(){
-    let request=this.userDetails.leaveLetter
-    request.forEach(item=>{
-      if(item.bool){
-        this.addString(`Leave granted for ${item.subjectCode} on ${item.leaveDate}`)
-      }
-      else{
-        if(this.passedDate(item.leaveDate)){
-          this.addString(`Leave on ${item.leaveDate} is waiting`)
-        }
-        else{
-          this.addString(`Leave on ${item.leaveDate} is denied`)
-        }
-      }
-    })
-  }
-  passedDate(date:Date):boolean{
-    const year=new Date().getTime()
-    const currentDate=new Date().getTime()
-    if(year>currentDate){
-      return false
-    }
-    else{
-      return true
-    }
-  }
-  addString(str:string){
-    console.log(str)
-    this.notificationContainer.push(str)
-    console.log(this.notificationContainer)
-  }
+  // leavePermit(){
+  //   let request=this.userDetails.leaveLetter
+  //   request.forEach(item=>{
+  //     if(item.bool){
+  //       this.addString(`Leave granted for ${item.subjectCode} on ${item.leaveDate}`)
+  //     }
+  //     else{
+  //       if(this.passedDate(item.leaveDate)){
+  //         this.addString(`Leave on ${item.leaveDate} is waiting`)
+  //       }
+  //       else{
+  //         this.addString(`Leave on ${item.leaveDate} is denied`)
+  //       }
+  //     }
+  //   })
+  // }
+  // passedDate(date:Date):boolean{
+  //   const year=new Date().getTime()
+  //   const currentDate=new Date().getTime()
+  //   if(year>currentDate){
+  //     return false
+  //   }
+  //   else{
+  //     return true
+  //   }
+  // }
+  // addString(str:string){
+  //   console.log(str)
+  //   this.notificationContainer.push(str)
+  //   console.log(this.notificationContainer)
+  // }
 
-  absenceNotification(){
-    let notify=this.userDetails.notification
-    notify.forEach((item:string)=>{
-      this.addString(item)
-    })
+  // absenceNotification(){
+  //   let notify=this.userDetails.notification
+  //   notify.forEach((item:string)=>{
+  //     this.addString(item)
+  //   })
+  // }
   }
-  
 }

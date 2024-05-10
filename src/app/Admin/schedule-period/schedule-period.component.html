@@ -52,47 +52,114 @@
     </style>
 </head>
 <body>
+    <h1>Department Schedule</h1>
     <div class="errorMessage"></div>
-   <div *ngIf="formFlag">
-    <h1 class="display-9" id="heading">SubjectCode</h1>
-
-<form [formGroup]="subjectCode">
-    <label for="subjectCode1">Subject Code 1:</label>
-    <input type="text" id="subjectCode1" name="subjectCode1" formControlName="subjectCode1" [placeholder]="placeHolderArray[0]" [readonly]="periodFlag">
-    <div *ngIf="subjectCode.get('subjectCode1')!.hasError('required') && subjectCode.get('subjectCode1')!.touched">
-        Subject Code 1 is required.
+    <div *ngIf="formFlag">
+        <label for="department" class="form-label">Department</label>
+          <select class="form-select" id="department" (change)="getCode($event)">
+            <option value="" disabled selected>Select your department</option>
+            <option value="mca">mca</option>
+            <option value="eee">eee</option>
+            <option value="csc">csc</option>
+          </select>
+    <div *ngIf="departmentFlag">
+        <form [formGroup]="subjectCode">
+          <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectCode1">Subject Code 1:</label>
+              <input type="text" id="subjectCode1" name="subjectCode1" formControlName="subjectCode1" [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectCode1')!.hasError('required') && subjectCode.get('subjectCode1')!.touched">
+                  Subject Code 1 is required.
+              </div>
+            </div>
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectName1">Subject Name 1:</label>
+              <input type="text" id="subjectName1" name="subjectName1" formControlName="subjectName1"  [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectName1')!.hasError('required') && subjectCode.get('subjectName1')!.touched">
+                  Subject Name 1 is required.
+              </div>
+            </div>
+          </div>
+      
+          <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectCode2">Subject Code 2:</label>
+              <input type="text" id="subjectCode2" name="subjectCode2"  formControlName="subjectCode2" [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectCode2')!.hasError('required') && subjectCode.get('subjectCode2')!.touched">
+                  Subject Code 2 is required.
+              </div>
+            </div>
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectName2">Subject Name 2:</label>
+              <input type="text" id="subjectName2" name="subjectName2" formControlName="subjectName2" [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectName2')!.hasError('required') && subjectCode.get('subjectName2')!.touched">
+                  Subject Name 2 is required.
+              </div>
+            </div>
+          </div>
+      
+          <!-- Repeat the above pattern for Subject Codes 3, 4, and 5 -->
+      
+          <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectCode3">Subject Code 3:</label>
+              <input type="text" id="subjectCode3" name="subjectCode3" formControlName="subjectCode3"  [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectCode3')!.hasError('required') && subjectCode.get('subjectCode3')!.touched">
+                  Subject Code 3 is required.
+              </div>
+            </div>
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectName3">Subject Name 3:</label>
+              <input type="text" id="subjectName3" name="subjectName3" formControlName="subjectName3"[readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectName3')!.hasError('required') && subjectCode.get('subjectName3')!.touched">
+                  Subject Name 3 is required.
+              </div>
+            </div>
+          </div>
+      
+          <!-- Subject Code 4 and Name 4 -->
+      
+          <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectCode4">Subject Code 4:</label>
+              <input type="text" id="subjectCode4" name="subjectCode4" formControlName="subjectCode4"  [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectCode4')!.hasError('required') && subjectCode.get('subjectCode4')!.touched">
+                  Subject Code 4 is required.
+              </div>
+            </div>
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectName4">Subject Name 4:</label>
+              <input type="text" id="subjectName4" name="subjectName4" formControlName="subjectName4" [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectName4')!.hasError('required') && subjectCode.get('subjectName4')!.touched">
+                  Subject Name 4 is required.
+              </div>
+            </div>
+          </div>
+      
+          <!-- Subject Code 5 and Name 5 -->
+      
+          <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectCode5">Subject Code 5:</label>
+              <input type="text" id="subjectCode5" name="subjectCode5" formControlName="subjectCode5" [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectCode5')!.hasError('required') && subjectCode.get('subjectCode5')!.touched">
+                  Subject Code 5 is required.
+              </div>
+            </div>
+            <div style="flex: 1; margin-right: 10px;">
+              <label for="subjectName5">Subject Name 5:</label>
+              <input type="text" id="subjectName5" name="subjectName5" formControlName="subjectName5" [readonly]="periodFlag">
+              <div *ngIf="subjectCode.get('subjectName5')!.hasError('required') && subjectCode.get('subjectName5')!.touched">
+                  Subject Name 5 is required.
+              </div>
+            </div>
+          </div>
+      
+          <button type="button" (click)="updateSubjectCodes()">Update</button>
+          <button type="button" (click)="nextPage()">Next</button>
+        </form>
+      </div>
     </div>
-    
-
-    <label for="subjectCode2">Subject Code 2:</label>
-    <input type="text" id="subjectCode2" name="subjectCode2" formControlName="subjectCode2"  [placeholder]="placeHolderArray[1]" [readonly]="periodFlag">
-    <div *ngIf="subjectCode.get('subjectCode2')!.hasError('required') && subjectCode.get('subjectCode2')!.touched">
-        Subject Code 2 is required.
-    </div>
-
-    <label for="subjectCode3">Subject Code 3:</label>
-    <input type="text" id="subjectCode3" name="subjectCode3" formControlName="subjectCode3"  [placeholder]="placeHolderArray[2]" [readonly]="periodFlag">
-    <div *ngIf="subjectCode.get('subjectCode3')!.hasError('required') && subjectCode.get('subjectCode3')!.touched">
-        Subject Code 3 is required.
-    </div>
-
-    <label for="subjectCode4">Subject Code 4:</label>
-    <input type="text" id="subjectCode4" name="subjectCode4" formControlName="subjectCode4"  [placeholder]="placeHolderArray[3]" [readonly]="periodFlag">
-    <div *ngIf="subjectCode.get('subjectCode4')!.hasError('required') && subjectCode.get('subjectCode4')!.touched">
-        Subject Code 4 is required.
-    </div>
-
-    <label for="subjectCode5">Subject Code 5:</label>
-    <input type="text" id="subjectCode5" name="subjectCode5" formControlName="subjectCode5"  [placeholder]="placeHolderArray[4]" [readonly]="periodFlag">
-    <div *ngIf="subjectCode.get('subjectCode5')!.hasError('required') && subjectCode.get('subjectCode5')!.touched">
-        Subject Code 5 is required.
-    </div>
-
-    <!-- <button type="button" (click)="updateSubjectCodes()">Update</button> -->
-    <button type="button" (click)="nextPage()">Next</button>
-</form>
-
-</div> 
     <div *ngIf="attendanceFlag" class="displaySubject">
         <h1 class="display-9" id="heading">Schedule</h1>
         <div>{{errorVal}}</div>

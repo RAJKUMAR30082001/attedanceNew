@@ -119,13 +119,16 @@ export class FaceapiService {
   clearIntervalId(id: any) {
     clearInterval(id);
   }
-  faceMatchDescriptor(regNo: string, descriptor: any): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      this.couch.getValueRegisterNumber(regNo).subscribe(async data => {
-        if (data) {
-          let descriptorStored = data.rows[0].value.LabeledDescritor;
+  faceMatchDescriptor(regNo: string, descriptor: any,error:HTMLDivElement): Promise<string> {
+    return new Promise<any>((resolve, reject) => {
+      this.couch.getFace(regNo).subscribe(async data => {
+        if (data.rows.length>0) {
+          let descriptorStored = data.rows[0].value.faceDescriptor;
           let result=await this.faceMatch(descriptorStored,descriptor)
-          resolve(result.toString());
+          resolve({result:result.toString(),data:data.rows[0].value});
+        }
+        else{
+            error.innerHTML="RegisterNumber is not exist"
         }
       }, error => {
         reject(error);
@@ -153,5 +156,6 @@ export class FaceapiService {
           resolve(result.toString());
     })
   }
+
   
 }

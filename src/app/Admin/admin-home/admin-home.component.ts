@@ -23,7 +23,7 @@ export class AdminHomeComponent implements OnInit{
   ngOnInit(): void {
     this.auth=this.check.getAuth()
     console.log(this.auth)
-    this.studentData=true
+    // this.studentData=true
   }
   Logout(){
     this.check.removeData()

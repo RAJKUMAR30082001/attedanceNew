@@ -46,17 +46,20 @@
               </div>
             </div>
         </div>
-            <div class="mb-3">
-              <label for="department" class="form-label">Department</label>
-              <input type="text" class="form-control" id="department" placeholder="Enter your department" formControlName="department">
-              <div class="error-message" *ngIf="registerForm.get('department')!.hasError('required') && registerForm.get('department')!.touched">
-                Department is required.
-              </div>
-              <div class="error-message" *ngIf="registerForm.get('department')!.hasError('pattern') && registerForm.get('department')!.touched">
-                Department must have alphabet only.
-              </div>
-            </div>
-  
+        <div class="mb-3">
+          <label for="department" class="form-label">Department</label>
+          <select class="form-select" id="department" formControlName="department">
+            <option value="" disabled selected>Select your department</option>
+            <option value="mca">mca</option>
+            <option value="eee">eee</option>
+            <option value="csc">csc</option>
+          </select>
+          <div class="error-message" *ngIf="registerForm.get('department')!.hasError('required') && registerForm.get('department')!.touched">
+            Department is required.
+          </div>
+         
+        </div>
+        
             <div class="mb-3">
               <label for="registerNumber" class="form-label">Register Number</label>
               <input type="text" class="form-control" id="registerNumber" placeholder="Enter your register number" formControlName="registerNumber">

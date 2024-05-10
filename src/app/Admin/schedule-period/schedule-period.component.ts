@@ -2,6 +2,7 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AdminService } from 'src/app/admin.service';
 import { CheckValidityService } from 'src/app/check-validity.service';
+import { StudentCouchService } from 'src/app/student-couch.service';
 import { periodWiseData } from 'src/app/student-data';
 
 @Component({
@@ -11,11 +12,13 @@ import { periodWiseData } from 'src/app/student-data';
 })
 export class SchedulePeriodComponent implements OnInit{
   public period = [];
-  public periodFlag:boolean=false
+  public department:string=''
+  public departmentFlag:boolean=false//check department selected
+  public periodFlag:boolean=false//readonly
   public divElement!:HTMLDivElement
-  public flag:boolean=true
+  public flag:boolean=true//validation
   public subjectCode!:FormGroup
-  public attendanceFlag:boolean=false
+  public attendanceFlag:boolean=false//schedule flag
   public periodForm!:FormGroup
   public dayWisePeriod={}
   public periods:periodWiseData[]=[]
@@ -23,62 +26,108 @@ export class SchedulePeriodComponent implements OnInit{
   public currentDay:number=0
   public periodCount:number=1
   public days:string[]=[]
-  public placeHolderArray:any
-  public formFlag:boolean=true
+  public dataToStore:{[key:string]:string}={}
+  public placeHolderArray:any//subjecode to display
+  public placeHolderSubject:any//subject to display
+  public formFlag:boolean=true//display subjectcode html
   public error!:HTMLDivElement
   public errorVal:string=''
-  constructor(private check:CheckValidityService,private render:Renderer2,private fb:FormBuilder,private adminService:AdminService) { }
+  public count:number=0
+  constructor(private check:CheckValidityService,private render:Renderer2,private fb:FormBuilder,private adminService:AdminService,private std:StudentCouchService) { }
   ngOnInit(): void {
-    this.period=this.check.getData().subjectCode
     console.log(this.period)
-    this.initializeCodeForm()
-    if(this.period.length>0){
-      this.placeHolderArray=this.period
+   
+    this.error=this.render.selectRootElement(".errorMessage")
+}
+getCode(event:Event){
+  
+  this.department=(event.target as HTMLSelectElement).value
+  console.log(this.department)
+  this.adminService.getViewUrl("departmentwiseCode",this.department).subscribe((res:any)=>{
+    if(res.rows.length>0){
+      console.log(res)
+      this.flag=true
       this.periodFlag=true
-      this.flag=false
-      console.log(this.placeHolderArray)
-      this.disableValitator(this.periodFlag)
+      this.placeHolderArray=Object.values(res.rows[0].value.data.subjectCode)
+      this.placeHolderSubject=Object.keys(res.rows[0].value.data.subjectCode)
+      // this.disableValitator(this.flag)
     }
     else{
-    let subjectCodePlace:string[]=[]
-    for(let i=1;i<=5;i++){
-      subjectCodePlace.push(`Enter SubjectCode ${i}`)
+      this.flag=false
+      this.periodFlag=false
+      let subjectCodePlace:string[]=[]
+      let subject:string[]=[]
+      for(let i=1;i<=5;i++){
+        subjectCodePlace.push(`Enter SubjectCode ${i}`)
+        subject.push(`Enter subjet name for SubjectCode${i}`)
+      }
+      this.placeHolderArray=subjectCodePlace
+      this.placeHolderSubject=subject
+      
+      this.error.innerHTML= "Please add a Subject code first."
     }
-    this.placeHolderArray=subjectCodePlace
-    this.error=this.render.selectRootElement(".errorMessage")
-    this.error.innerHTML= "Please add a Subject code first."
-   }
+    this.initializeCodeForm()
+    // this.disableValitator(this.flag)
+    this.departmentFlag=true
+    console.log(this.placeHolderArray)
+
+  })
 }
   updateSubjectCodes(){
-    this.periodFlag=true
+    this.periodFlag=false
+    if(this.count===1){
+      console.log(this.subjectCode.value)
+      this.updateValue()
+    }
+    this.count++
+      
   }
-  nextPage(){
+  async nextPage(){
     if(this.error){
     this.error.innerHTML=""
-  }
-    if(this.flag){
-    this.adminService.getUrl().subscribe(data=>{
-      
-      data.subjectCode=Object.values(this.subjectCode.value)
-      data.hours = Object.fromEntries(
-        Object.values(this.subjectCode.value).map(e => [e, 0])
-      );
+  } console.log(this.check.getData())
+  console.log(this.subjectCode)
+  this.assignValue()
+    if(!this.periodFlag){
+      let uuid= this.std.createid(this.department)
+      let data={
+        "_id":uuid,
+        "data":{
+          'subjectCode':this.dataToStore,
+          "type":"subjectCode",
+          "department":this.department
+        }
+      }
+      this.adminService.createDoc(data).subscribe(res=>{
+        console.log(res)
+      })
+    }
      
-      
-      this.adminService.updateAdmin(data)
-    })
-  }
+  
     this.attendanceFlag=true
     this.formFlag=false
     this.initializeForm()
+  
+}
+assignValue() {
+  for (let i = 0; i < 5; i++) {
+    this.dataToStore[`${this.subjectCode.value['subjectName' + (i + 1)]}`] = this.subjectCode.value['subjectCode' + (i + 1)];
   }
+  console.log(this.dataToStore)
+}
+
   getDay():string{
    
     this.days=['monday','tuesday','wednesday','thursday','friday']
     return this.days[this.currentDay]
     
   }
+  updateValue(){
+    this.adminService.getViewUrl("departmentwiseCode",this.department).subscribe((res:any)=>{})
+  }
+
   next(){
+    
     let details:periodWiseData={
       subjectName:this.periodForm.value.subjectName?this.periodForm.value.subjectName.toLowerCase():'',
       subjectCode:this.periodForm.value.subjectCode?this.periodForm.value.subjectCode.toLowerCase():'',
@@ -124,24 +173,29 @@ export class SchedulePeriodComponent implements OnInit{
     })
   }
   initializeCodeForm(){
-    this.subjectCode=this.fb.group({
-      subjectCode1:['',[Validators.required]],
-      subjectCode2:['',[Validators.required]],
-      subjectCode3:['',[Validators.required]],
-      subjectCode4:['',[Validators.required]],
-      subjectCode5:['',[Validators.required]],
-})
-  }
-  disableValitator(flag:boolean){
-    if(flag){
-      for(let i=1;i<=5;i++){
-        // Remove validators
-        this.subjectCode.get(`subjectCode${i}`)?.clearValidators();
-        this.subjectCode.get(`subjectCode${i}`)?.updateValueAndValidity(); // Update validity status
-      
+    this.subjectCode = this.fb.group({});
+    for(let i=0;i<5;i++){
+      this.subjectCode.addControl(`subjectCode${i+1}`,this.fb.control(`${this.placeHolderArray[i]}`,Validators.required))
+      this.subjectCode.addControl(`subjectName${i+1}`,this.fb.control(`${this.placeHolderSubject[i]}`,Validators.required))
+
     }
   }
-}
+//   disableValitator(flag:boolean){
+//     if(flag){
+//       for(let i=1;i<=5;i++){
+//         // Remove validators
+//         this.subjectCode.get(`subjectCode${i}`)?.clearValidators();
+//         this.subjectCode.get(`subjectCode${i}`)?.updateValueAndValidity({ onlySelf: true }); // Update validity status
+      
+//     }
+//   }else{
+//     for (let i = 1; i <= 5; i++) {
+//       // Add validators
+//       this.subjectCode.get(`subjectCode${i}`)?.setValidators(Validators.required);
+//       this.subjectCode.get(`subjectCode${i}`)?.updateValueAndValidity({ onlySelf: true }); // Update validity status
+//     }
+//   }
+// }
 
 checkAlreadyExist(details: any): boolean {
   const startTime = this.getTime(details.startTime);
@@ -188,5 +242,6 @@ getTime(Time:string):number{
 
   
 }
+
 
 

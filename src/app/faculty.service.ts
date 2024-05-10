@@ -3,7 +3,7 @@ import { StudentCouchService } from './student-couch.service';
 import { facultyLogin } from './student-data';
 import { HttpClient } from '@angular/common/http';
 import * as CryptoJS from 'crypto-js';
-import { Observable, map } from 'rxjs';
+import { Observable, Subject, find, map } from 'rxjs';
 import { CheckValidityService } from './check-validity.service';
 import { Router } from '@angular/router';
 
@@ -13,8 +13,8 @@ import { Router } from '@angular/router';
 export class FacultyService {
 
   // Base URL for faculty data
-  private baseUrl = `${this.stdService.apiUrl}/faculty`;
-
+  private baseUrl = this.stdService.apiUrl;
+ public dataStruct:any
   // API URL
   private apiUrl = this.stdService.apiUrl;
 
@@ -27,86 +27,146 @@ export class FacultyService {
   constructor(private stdService: StudentCouchService, private http: HttpClient,private check:CheckValidityService,private route:Router) { }
 
   // Method to update or insert faculty data
-  putData(data: facultyLogin, errorMessage: HTMLDivElement) {
-    console.log("coming");
-
-    let email: string = data.email;
-    let subjectCode: string = data.subjectCode;
-    let department: string = data.department;
-    let subject: string = data.subject;
-    let employeeId:number=data.employeeId
-
-    this.http.get<any>(this.baseUrl, { headers: this.Header }).subscribe((res) => {
-      // Check if department data exists
-      if (res[department]) {
-        let details = res[department];
-
-        // Check if email already exists in department data
-        if (details[email]) {
-          errorMessage.innerHTML = "Email already exists";
-          return;
-        }
-
-        // Check if email already exists in student data
-        this.stdService.getFullDocument().subscribe(data => {
-          let stdData = data[String(this.year)];
-          let keys = Object.keys(stdData).filter(key => stdData[key].email === email);
-          if (keys.length > 0) {
-            errorMessage.innerHTML = "Email already exists in student data";
-            return
-          }
-        });
-
-        console.log(details);
-
-        let key = Object.keys(details);
-        console.log(key);
-
-        // Check if subjectCode or subject already exists
-        let subjectCodeExist = key.some(keys => details[keys].subjectCode === subjectCode);
-        let subjectExist = key.some(keys => details[keys].subject === subject);
-        let employeeIdExist=key.some(keys=>details[keys].employeeId===employeeId)
-
-        if (subjectCodeExist) {
-          errorMessage.innerHTML = "Subject code already exists";
-          return;
-        }
-
-        if (subjectExist) {
-          errorMessage.innerHTML = "Subject already exists";
-          return;
-        }
-        if(employeeIdExist){
-          errorMessage.innerHTML="employeeId already exists"
-          return
-        }
-
-        // Add faculty data to existing department
-        details[email] = data;
-        this.updateDocument(res);
-        errorMessage.innerHTML = "Registered Successfully Wait for Admin Approval";
-
-        setTimeout(()=>{
-          this.route.navigate(['/home'])
-        },2000)
-      } else {
-        // Create new department data
-        res[department] = {
-          [email]: data
-        };
-        this.updateDocument(res);
-        errorMessage.innerHTML = "Registered Successfully Wait for Admin Approval";
-
-        setTimeout(()=>{
-          this.route.navigate(['/home'])
-        },2000)
-      }
+  getSubjectCodeName(dept: string): Promise<[keys: string[], values: string[] ]> {
+    console.log(dept)
+    const url = `${this.baseUrl}/_design/view/_view/getsubjectcode?key="${dept}"`;
+    return new Promise<[keys: string[], values: string[] ]>((resolve, reject) => {
+        this.http.get<any>(url, { headers: this.Header }).subscribe(
+            res => {
+                const subjectCode = res.rows[0].value.data.subjectCode;
+                const keys = Object.keys(subjectCode);
+                const values:string[] = Object.values(subjectCode);
+                resolve([keys, values ]);
+            },
+            error => {
+                reject(error);
+            }
+        );
     });
+}
+async createDocument(data:any, error:HTMLDivElement){
+  console.log("yeah")
+  let email=data.email
+  let employeeId=data.employeeId
+  console.log(typeof employeeId)
+  this.findEmailExist(email,"email",error)
+  this.findIdExist(employeeId,"employeeId",error)
+  let uuid=this.stdService.getId()
+  this.dataStruct={
+    "_id":`faculty_2_${uuid}`,
+    "data":data
+  }
+  // this.http.post(this.baseUrl,dataStruct,{headers:this.Header}).subscribe(res=>{
+  //   console.log(res)
+  // })
+}
+
+async toCheckAlreadyExist(data:any,error:HTMLDivElement):Promise<boolean>{
+  let Subject:string[]=[]
+  let subjectCode:string[]=[]
+  try {
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid data format');
+    }
+
+    const val: any = Object.values(data)[0];
+    console.log(val);
+
+    if (!val || typeof val !== 'object') {
+      throw new Error('Invalid value format');
+    }
+
+    let final=Object.entries(val);
+    console.log(final[0][0],final[0][1])
+    let department=Object.keys(data)[0]
+    let storedValue=await this.getSearchIndex(department,"department")
+    if(storedValue.length>0){
+    storedValue.forEach((val:any)=>{
+      Object.values(val).forEach((restVal:any)=>{
+        Subject.push(Object.keys(restVal)[0])
+        subjectCode.push(Object.values(restVal)[0] as string)
+      })
+    })
+    console.log(Subject,subjectCode)
+   
+
+    
+    if(Subject.includes(final[0][0])){
+      error.innerHTML="subject already exist"
+      return false;
+    }
+
+    else{
+      if(final[0][1]){
+        for(let i of subjectCode){
+          if(i===final[0][1]){
+            console.log("coming")
+            error.innerHTML="subject code already exist"
+            return false
+          }}
+          
+      }}
+      return true
+    }
+    return true
+
+   
+  } catch (error) {
+    console.error('Error checking existence:', error);
+    return false;
   }
 
-  // Method to update CouchDB document
+}
+getIndex(value:string,type:string){
+  console.log(value)
+  let body=this.getBody(value,type)
+  console.log(body)
+  return this.http.post(`${this.baseUrl}/_design/view/_search/findExist`,body,{headers:this.Header})
+}
+
+getSearchIndex(value:string,type:string){
+  
+  return this.getIndex(value,type).toPromise().then((res:any)=>{
+    console.log(res)
+    if(res.rows.length>0){
+    return res.rows[0].doc.data.department;}
+    else{
+      return []
+    }
+  })
+   
+}
+getBody(value:string,type:string){
+  return{ q:`${type}:${value}`,'include_docs':true}
+}
+
+findEmailExist(email:string,type:string,error:HTMLDivElement){
+  this.getIndex(email,type).toPromise().then((res:any)=>{
+    console.log(res.rows.length,res)
+    if(res.rows.length>0){
+      error.innerHTML="email already exist"
+    }
+  })
+}
+findIdExist(empId:string,type:string,error:HTMLDivElement){
+  this.getIndex('_'+empId,type).toPromise().then((res:any)=>{
+    console.log(res.rows.length,res)
+    if(res.rows.length>0){
+      error.innerHTML="Employee Id already exist"
+    }
+    else{
+      this.http.post(this.baseUrl,this.dataStruct,{headers:this.Header}).subscribe(res=>{
+          console.log(res)
+          error.innerHTML="successfully submitted wait for approval"
+        })
+      }
+    })
+ 
+}
   updateDocument(doc: any) {
-    this.http.put(this.baseUrl, doc, { headers: this.Header }).subscribe(res => {
+    let id=doc._id
+    let rev=doc._rev
+    this.http.put(`${this.baseUrl}/${id}?rev=${rev}`, doc, { headers: this.Header }).subscribe(res => {
       console.log("Successfully updated");
     });
   }
@@ -118,9 +178,11 @@ export class FacultyService {
     return hashedPassword;
   }
 
-  // Method to check login credentials
+ 
   loginCheck(email: string, password: string, errorMessage: HTMLDivElement) {
-    this.http.get<any>(this.getViewUrl(email,"facultylogin"), { headers: this.Header }).subscribe(data => {
+   
+    this.http.get<any>(`${this.getViewUrl(email,"facultylogin")}`, { headers: this.Header }).subscribe(data => {
+      console.log(data)
       if (data.rows.length === 0) {
         errorMessage.innerHTML = "Enter valid email";
         return;
@@ -145,13 +207,12 @@ export class FacultyService {
 
   // Method to generate the URL for fetching faculty data based on email
   getViewUrl(data: string,view:string): string {
-    return `${this.apiUrl}/_design/views/_view/${view}?key="${data}"`;
+    return `${this.baseUrl}/_design/view/_view/${view}?key="${data}"`;
   }
 
   getFacultyData():Observable<any>{
-    return this.http.get<any>(this.baseUrl,{headers:this.Header}).pipe(
-      map(data=> data['mca'])
-    )
+    return this.http.get<any>(`${this.baseUrl}/_design/view/_view/permitFaculty`,{headers:this.Header})
+    
   }
   getFullDocument():Observable<any>{
     return this.http.get<any>(this.baseUrl, { headers: this.Header })
